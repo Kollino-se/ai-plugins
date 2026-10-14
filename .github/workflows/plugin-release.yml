@@ -1,0 +1,43 @@
+name: Release restaurant distribution
+on:
+  push:
+    branches: [main]
+    paths: ['release-manifest.json']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: restaurant-plugin-release
+  cancel-in-progress: false
+jobs:
+  checks:
+    uses: ./.github/workflows/plugin-ci.yml
+  release:
+    needs: checks
+    if: github.repository == 'Kollino-se/ai-plugins' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: restaurant-plugin-release
+    permissions:
+      contents: write
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13.5'
+      - name: Install pinned validator
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+      - name: Reproduce release artifacts
+        env:
+          PRODUCTION_ORIGIN: ${{ vars.PLUGIN_PRODUCTION_ORIGIN }}
+        run: |
+          test -n "$PRODUCTION_ORIGIN"
+          python scripts/package.py build --root . --production-origin "$PRODUCTION_ORIGIN"
+          python scripts/package.py validate --root . --production-origin "$PRODUCTION_ORIGIN"
+      - name: Publish or verify immutable public release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRODUCTION_ORIGIN: ${{ vars.PLUGIN_PRODUCTION_ORIGIN }}
+        run: python scripts/release.py --root . --artifacts .artifacts --commit "$GITHUB_SHA" --production-origin "$PRODUCTION_ORIGIN"

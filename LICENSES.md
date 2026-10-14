@@ -25,3 +25,4 @@ Attribution is required when copying or reusing documentation, e.g.:
 Kollino, Kollino AI, and related names, logos, and visual assets are protected by trademark and brand rules. They are not included in the software or documentation license grants and may only be used under a separate written permission or explicit brand policy.
 
 See BRAND_POLICY.md for details.
+
