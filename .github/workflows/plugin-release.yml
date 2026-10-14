@@ -40,4 +40,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PRODUCTION_ORIGIN: ${{ vars.PLUGIN_PRODUCTION_ORIGIN }}
-        run: python scripts/release.py --root . --artifacts .artifacts --commit "$GITHUB_SHA" --production-origin "$PRODUCTION_ORIGIN"
+        run: python -B scripts/release.py --root . --artifacts .artifacts --commit "$GITHUB_SHA" --production-origin "$PRODUCTION_ORIGIN"
